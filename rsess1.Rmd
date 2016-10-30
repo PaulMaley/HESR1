@@ -1,0 +1,339 @@
+---
+title: "R Session 1"
+author: "Paul Maley"
+date: "October 25, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(xtable)
+```
+
+## Objectives
+
+ - Learn the basics of using R
+ - Illustrate the work we have done before the holidays by producing and working with
+ distributions of sample statistics
+ 
+This document is available at <http://github.com>
+
+
+## Getting started
+
+ - Fire up RStudio .....
+ - We enter commands into the console (this is real programming - no clicking!). 
+ - Try evaluating some basic arithmetic expressions 
+ - Type the expression:
+```{r,eval=FALSE}
+1+1
+```
+ - and hit enter to evaluate it:
+```{r,echo=FALSE}
+1+1
+```
+ - Try some more:
+``` {r}
+2*3 + 1
+21/3
+x <- 3/4
+```
+ - Where's `x` gone? It's here:
+```{r}
+x
+```
+ - We use `<-`to bind a name to an object (a number for example). We can then use that 
+   name to refer to or reference that object
+```{r}
+x+1
+x^2
+```
+ - More than single numbers, we'll be most interested in dealing 
+ with vectors of numbers. To create a vector we use the function `c` (c for concatenate):
+```{r}
+ xs <- c(1,2,3,4,5)
+ xs
+```
+ - R has zillions (more or less) of functions, try a few out!
+```{r}
+max(xs)
+min(xs)
+mean(xs)
+median(xs)
+sd(xs)
+```
+**Exercise**
+
+ - Define a vector of numbers: `mydata <- c( ... )`
+ - Calculate the mean, standard deviation, median, upper and lower quartiles.
+
+ - As we go forwards we'll introduce more functions and more ways to use R
+ 
+## Visualising data
+ - R gives us a whole bunch functions for visualising data.
+ - Let's start with `plot`. One way to visualise your data is to draw points on a number line. 
+ We can use `plot` to do that.
+
+**Exercise**
+
+ - Use the function `rep` to produce a vector of zeros the same length as your vector `mydata` (try `help(rep)`and `help(length)`)
+ - With `z` as your vector of zeros do `plot(mydata, z)` (what happens if you inverse `mydata`and `z`?)
+ - Look at `help(plot)`and change the axis labels and the title.
+ - Calculate the mean of your data and add a point on the plot: `points(mymean,0)`
+ - Calculate the standard deviation of your data
+ - Add a line on your plot which starts at the mean minus one standard deviation and ends at the mean plus one standard deviation
+ 
+```{r, echo=FALSE}
+mydata <- c(1,2,3,4,7,8,9,12,32)
+z <- rep(0,length(mydata))
+my.mean <- mean(mydata)
+my.sd <- sd(mydata)
+plot(mydata,z, main = 'My title' , xlab = 'Mydata', ylab = 'Dummy')
+points(my.mean,0, col='red')
+lines(c(my.mean-my.sd, my.mean+my.sd), c(0,0), col='red')
+```
+
+ - This way of building data visuals can be useful but often there are prebuilt functions you can use. 
+ - One that you have seen last year is the histogram. Do help `help(hist)` and make a histogram of your data.
+ - Another useful function is `boxplot`; give it a try (you can use `horizontal=TRUE` to rotate it).
+
+```{r,echo=FALSE}
+ boxplot(mydata, horizontal = TRUE)
+```
+
+ - Check that the values returned by the functions `median` and `quartile` correspond with the plot.
+
+## Generating data
+ - An incredibly useful thing to be able to do is generate simulated data. We'll not really use this in the course, 
+ but we can use it here to test our data analysis. 
+ - We can use the function `rnorm` to produce values distributed according to the normal distribution:
+```{r}
+xs <- rnorm(100, mean = 10, sd = 1)   # 100 values drawn from N(10,1)
+hist(xs)
+```
+ 
+**Exercise**
+
+Calculate a 90% confidence interval for some data sampled from a normal distribution:
+
+ - Generate a vector of ten or so values from a normal distribution with mean and standard deviation of your choice.
+ - Calculate the mean value of the sample
+ - Use the function `qnorm` (`help(qnorm)`) to calculate the value of z to use for the interval
+ - Use the standard deviation of the population, the sample mean, the sample size and the calculated value of z to form
+ a confidence interval for your data.
+ - Plot the data along with the confidence interval.
+
+```{r}
+popln.sigma <- 8
+popln.mean <- 54
+n <- 30
+data <- rnorm(n, popln.mean, popln.sigma)
+sample.mean <- mean(data)
+z <- abs(qnorm(.05))
+x.low <- sample.mean - z*popln.sigma/sqrt(n)
+x.high <- sample.mean + z*popln.sigma/sqrt(n)
+plot(data, rep(0,length(data)), ylab = '')
+points(sample.mean, 0, col='red')
+lines(c(x.low, x.high), c(0,0), col='red')
+lines(c(popln.mean, popln.mean), c(-0.5,0.5), col='blue')
+```
+ 
+ - Play around with different values of n, $\sigma$, $\mu$ and $\alpha$ and see what effect that has
+ - Instead of using the population standard deviation calculate the sample standard deviation and use
+ `qt()` to calculate a confidence interval based on the Student-t distribution.
+
+**Exercise**
+Use `pnorm`, `pt`, `qnorm`, and `qt` to calculate the following:
+
+ - $P(X < 2)$ where $X \sim N(3,1)$ (Normal distribution with mean 3 and standard deviation 1)
+ - $P(|Z| > 3)$ where $Z \sim N(0,1)$
+ - $P(T > 2)$ where $T$ is sampled from a t distribution with 7 degrees of freedom
+ - $z_c$ such that $P(Z<z_c) = 0.3$
+ - $t_c$ such that $P(T<t_c) = 0.8$ where $T$ is sampled from a t distribution with 12 degrees of freedom  
+ - etc.. 
+
+## Getting data into R
+ - We have seen vectors of values.
+ - Now let's look at the workhorse of R data - the data.frame.
+ - A data frame is like a database table with each row corresponding to an observation and
+   the columns contianing the values for the different variables.
+ - Generally we get data frames by reading in data from a file. For example:
+```{r,eval=FALSE}
+  rd <- read.csv("my_data.csv", header=TRUE)
+  data <- data.frame(rd)
+```
+ - Do `help(read.csv)` to see the details .... this can be a bit tricky sometimes!
+ - Once we have a data frame we can start to produce some visualisations and descriptive statistics:
+ - Here's an example of what a small data frame looks like:
+```{r, echo=FALSE, result='asis', comment=NA}
+  n <- 15
+  mydata <- data.frame(Type=sample(c('A', 'B'), n, replace=TRUE),
+                       Height=rnorm(n, mean=50, sd=10),
+                       Weight=runif(n, 20,30)) 
+```
+```{r, comment=NA, results='asis', echo=FALSE}
+   print(xtable(mydata, align="ccrr"), type="html", comment=FALSE)
+```
+ - We can read one row like this:
+```{r}
+ mydata[3,]
+```
+ - Or one column like this:
+```{r}
+ mydata[,2]
+ mydata$Height
+```
+ - These are the data structures you will work with.
+ - To visualise the distribution of heights:
+```{r}
+  hist(mydata$Height)
+```
+The "$" operator returns one of the columns of the data frame.
+
+
+ - We can look at grouped data:
+```{r}
+ boxplot(mydata$Height~mydata$Type)
+```
+
+ - We see above the use of $\sim$ in the call to `boxplot`. We'll see it a lot more in the weeks that come
+ where it will specify a model (dependence of a variable on other variables). Here we are using it to group
+ the observations (rows in the data frame) according to `Type`. 
+
+  
+ - We can of course also apply functions to the data:
+```{r}
+ mean(mydata$Weight)
+```
+
+ - Or look at plots:
+```{r}
+ plot(mydata$Height, mydata$Weight, col = ifelse(mydata$Type=='A', 'red', 'blue'))
+```
+
+
+ 
+  
+  
+  
+## Sampling
+ - Let's start by producing some samples from a random variable: Rolling a die produces the numbers
+1 to 6 with equal probability. We can use the `sample` function to model this:
+```{r}
+n <- 10                            
+rolls <- sample(c(1,2,3,4,5,6), n, replace = TRUE)
+rolls
+```
+ - Repeating the function call will produce a different sample
+```{r}
+n <- 10                            
+morerolls <- sample(c(1,2,3,4,5,6), n, replace = TRUE)
+morerolls
+```
+ - To see what the various arguements we pass into the function mean we can look at 
+ the `help` for a function (in Rstudio look on the right hand side in the help window):
+```{r}
+?sample
+```
+  
+## Sampling errors
+ - For a given sample we can calculate the mean
+```{r}
+# Normal distribution with mean 1 and standard deviation 1:
+n <- 10
+xs <- rnorm(n, mean = 1, sd = 1)
+xs
+mean(xs)
+sd(xs)
+```
+
+ - Here we see the sampling error `r mean(xs)`-`r 1`=`r mean(xs)- 1`
+ - But this is for one sample - what really interests us is how is this error distributed.
+```{r}
+## Change the value of n to set the sample size
+n <- 10
+
+## A function to produce a sample of size n 
+## Change mu and sigma to modify the population distribution and hence the samples
+mu <- 1
+sigma <- 1
+makesample <- function(n) { rnorm(n, mean=mu, sd=sigma)}
+
+# Produce a few samples and calculate their means:
+sample1 <- makesample(10)
+sample1
+mean(sample1)
+
+sample2 <- makesample(10)
+sample2
+mean(sample2)
+
+sample3 <- makesample(10)
+sample3
+mean(sample3)
+```
+ - We can manufacture a series of samples with a bit of programming. This code produces three samples
+ each with 5 elements.
+```{r}
+n <- 5 
+xbars <- lapply(rep(n, 3), function(x) {makesample(x)})
+xbars
+```
+ - And if we are only interested in the sample means then:
+```{r}
+n <- 5 
+xbars <- lapply(rep(n, 3), function(x) {mean(makesample(x))})
+xbars
+```
+ 
+ - If we produce a whole set of different samples and calculate the mean for each one what is the
+distribution of these mean values? This requires a bit more work!
+```{r}
+# Make 1000 samples and look at the distribution of the sample means
+n <- 10 
+xbars10 <- sapply(rep(n, 1000), function(x) {mean(makesample(x))})
+
+# And display the distribution
+hist(xbars10, main = paste0("Sample size ",n, collapse=""), xlim = c(mu-2*sigma, mu+2*sigma))
+
+n <- 100 
+xbars100 <- sapply(rep(n, 1000), function(x) {mean(makesample(x))})
+
+# And display the distribution
+hist(xbars100, main = paste0("Sample size ",n, collapse=""), xlim = c(mu-2*sigma, mu+2*sigma))
+
+n <- 1000 
+xbars1000 <- sapply(rep(n, 1000), function(x) {mean(makesample(x))})
+
+# And display the distribution
+hist(xbars1000, main = paste0("Sample size ",n, collapse=""), xlim = c(mu-2*sigma, mu+2*sigma))
+
+```
+
+ - Hopefully you are convinced that the mean value of a sample is distributed around the population
+mean and that as the sample size increases the sample error tends to decrease. 
+ - No?
+```{r}
+means <- c(mean(xbars10), mean(xbars100), mean(xbars1000))
+sds <- c(sd(xbars10), sd(xbars100), sd(xbars1000))
+par(mfrow=c(1,2))
+plot(means, xlab = 'Log_10(sample size)', ylab = 'Sample mean')
+plot(sds, type = 'o', xlab = 'Log_10(sample size)', ylab = 'Sample standard error')
+```
+
+ **Exercise**
+ - Use the following code to do the same thing for a uniformly distributed random variable.
+ Rerun the code snippet for increasing values of `n` and observe the distribution. 
+```{r}
+g <- function(n) { runif(n, 5, 10)} # Produces random numbers in the interval [5,10]
+
+n <- 1000 
+xbars <- sapply(rep(n, 1000), function(x) {mean(g(x))})
+hist(xbars, xlim = c(6,9))
+```
+
+
+
+
+
+
