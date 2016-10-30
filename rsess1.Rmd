@@ -16,7 +16,7 @@ library(xtable)
  - Illustrate the work we have done before the holidays by producing and working with
  distributions of sample statistics
  
-This document is available at <http://github.com>
+This document is available at <https://github.com/PaulMaley/HESR1>
 
 
 ## Getting started
