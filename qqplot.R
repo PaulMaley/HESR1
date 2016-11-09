@@ -1,16 +1,19 @@
-# Calculation
+# QQPlot example from the class
+# Have a play
 
 # Sample size
 n <- 1000
 
 # Make n random numbers ~N(0,1) and order them
 xs <- sort(rnorm(n))
+
 # Or a t-distribution
 #xs <- sort(rt(n, df=5))
-# Uniform distribution [-3,3]
+
+# Or a uniform distribution [-3,3]
 #xs <- sort(runif(n,-3,3))
 
-# Define quartiles q by k/n+1 for K=1,n
+# Define quantiles q by k/n+1 for K=1,n
 qs <- sapply(1:n, {function(x) x/(n+1)})
 
 # Determine corresponding z values
