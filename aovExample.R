@@ -87,6 +87,6 @@ F = MSB/MSW
 
 # The critical value for F (alpha=1%):
 alpha <- 0.01
-Fc <- qF(0.99, 4-1, 20-4)
+Fc <- qf(0.99, 4-1, 20-4)
 
 # Compare F and Fc
